@@ -1,0 +1,12 @@
+{
+  "name": "hywer",
+  "version": "0.0.1",
+  "description": "🥢 World Smallest, JSX based, Fine Grained Reactive UI Library.",
+  "author": "ssleert",
+  "type": "module",
+  "exports": {
+    ".": "./src/hywer/hywer.js",
+    "./jsx-runtime": "./src/hywer/hywer.js",
+    "./jsx-dev-runtime": "./src/hywer/hywer.js"
+  }
+}
