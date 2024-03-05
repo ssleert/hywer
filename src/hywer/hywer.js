@@ -24,8 +24,7 @@ const reactiveGC = () =>
   isGCsetTimeout || (
     setTimeout(() => (
       gcValues[forEach](val => val.gc() || gcValues.delete(val)),
-      isGCsetTimeout = false,
-      console.log(gcValues)
+      isGCsetTimeout = false
     ), gcCycleInMs),
     isGCsetTimeout = true
   )
@@ -162,6 +161,7 @@ const makeReactiveElementFromReactiveObject = (obj) => {
     )
 
     obj[bind](element, val => {
+      processedChildren.length = 0
       processChildren(val)
       element[replaceChildren](...processedChildren)
     })
