@@ -46,7 +46,7 @@ document.getElementById("app").append(...<App />)
 - Support of existing infrastructure tools like `webpack` `babel` `vite` `swc` `bun`, with little configuration.
 
 ## Why Hywer?
-- Performant
+### Performant
 Carefully optimized for performance and bundle size. Hywer performance indistinguishable from vanilla js. 
 Hywer provides very little layer of abstraction between your code and browser apis.
 Reactive value dependecies is static and execution is async without main thread blocking.
