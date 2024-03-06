@@ -206,7 +206,7 @@ export const makeElement = (tag, attributes, ...children) => {
   return element
 }
 
-export const jsx = (tag, { children, ...attributes }) => makeElement(tag, attributes, children)
+export const jsx = (tag, { children, ...attributes }) => makeElement(tag, attributes, children ?? [])
 export {
   jsx as jsxs,
   jsx as jsxDEV,
