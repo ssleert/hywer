@@ -46,6 +46,11 @@ document.getElementById("app").append(...<App />)
 - Incredibly Small & Understandable code base.
 - Support of existing infrastructure tools like `webpack` `babel` `vite` `swc` `bun`, with little configuration.
 
+## Links
+- [Hywer + Vite template](https://github.com/ssleert/hywer-vite-template) 
+- [Hywer proof of bundle size](https://github.com/ssleert/hywer-bundle-size)
+- [Hywer Getting Started](https://github.com/ssleert/hywer/wiki/Getting-Started)
+
 ## Why Hywer?
 ### Performant
 Carefully optimized for performance and bundle size. Hywer performance indistinguishable from vanilla js. 
