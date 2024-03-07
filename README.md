@@ -91,7 +91,10 @@ At this point Hywer is in a very early stage of development so feel free to open
 - [ ] website
   - [x] [project template](https://github.com/ssleert/hywer-website)
 - [x] [bundle size test](https://github.com/ssleert/hywer-bundle-size)
-      
+- [ ] fine grained array change
+  - for now arrays simply remove all old elements and insert new
+- [ ] write tests
+  - i dont really understand how to write tests for dom content
 
 <div align="center">
 
