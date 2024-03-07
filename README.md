@@ -11,7 +11,7 @@ Hywer uses **native browser apis** like `createElement`, `createTextNode` and re
 In Hywer all you **JSX** components like `<Component/>` is a **native HTMLElement** objects.
 Hywer updates `DOM` **granularly** and **asynchronously** without slowing down your code.
 
-## [Docs](https://github.com/ssleert/hywer/wiki)
+## [Getting Started](https://github.com/ssleert/hywer/wiki)
 
 ## At a glance
 ```jsx
