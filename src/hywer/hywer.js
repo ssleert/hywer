@@ -14,6 +14,7 @@ const instanceOf = (obj, type) => obj instanceof type
 const isObjectReactiveValue = (obj) => obj?.__ReactiveValue__
 const isObjectHTMLElement = (obj) => instanceOf(obj, HTMLElement)
 const mapFilter = (map, mapper) => new Map([...map].filter(mapper))
+const isUndefOrNull = (val) => val === _undefined || val === null
 
 // reactive references garbage collector
 export let gcCycleInMs = 5000
@@ -123,7 +124,7 @@ const makeEventListener = (element, key, val) =>
 const setAttributes = (element, key, val) =>
   val === true
     ? element[setAttribute](key, "")
-    : val === false || val === _undefined || val === null
+    : val === false || isUndefOrNull(val)
       ? element.removeAttribute(key)
       : element[setAttribute](key, val)
 
@@ -183,7 +184,9 @@ const makeElementFromObject = obj =>
       : doc[createTextNode](obj)
 
 const appendChildren = (append, children) =>
-  [children].flat(Infinity)[forEach](e => append(makeElementFromObject(e)))
+  [children].flat(Infinity)[forEach](
+    e => isUndefOrNull(e) || append(makeElementFromObject(e))
+  )
 
 export const Fragment = {}
 export const makeElement = (tag, attributes, ...children) => {

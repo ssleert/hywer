@@ -6,11 +6,12 @@
 
 </div>
 
-Hywer is a **World Smallest**<sup>1kb</sup>, **JSX** based, Fine Grained Reactive **UI** Library.
+[Hywer](https://github.com/ssleert/hywer) is a **World Smallest**<sup>1kb</sup>, **JSX** based, Fine Grained Reactive **UI** Library.
 Hywer uses **native browser apis** like `createElement`, `createTextNode` and reactively update its content. 
 In Hywer all you **JSX** components like `<Component/>` is a **native HTMLElement** objects.
 Hywer updates `DOM` **granularly** and **asynchronously** without slowing down your code.
 
+## [Docs](https://github.com/ssleert/hywer/wiki)
 
 ## At a glance
 ```jsx
