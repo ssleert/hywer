@@ -11,7 +11,7 @@ Hywer uses **native browser apis** like `createElement`, `createTextNode` and re
 In Hywer all you **JSX** components like `<Component/>` is a **native HTMLElement** objects.
 Hywer updates `DOM` **granularly** and **asynchronously** without slowing down your code.
 
-## [Getting Started](https://github.com/ssleert/hywer/wiki)
+## [Getting Started](https://github.com/ssleert/hywer/wiki/Getting-Started)
 
 ## At a glance
 ```jsx
@@ -73,6 +73,25 @@ Hywer support all mainline browser and any runtime with DOM api like Deno or Nod
 ## More
 At this point Hywer is in a very early stage of development so feel free to open an issue with your problems and suggestions.
 
+## Todo
+- [ ] write base docs
+  - [ ] getting started
+  - [ ] api doc
+- [ ] typescript support out of the box
+  - [ ] write hywer.d.ts for all exported api
+- [ ] project templates
+  - [x] [vite template](https://github.com/ssleert/hywer-vite-template)
+  - [ ] swc template
+  - [ ] webpack template 
+  - [ ] maybe other...
+- [ ] bundlers plugins
+  - [ ] vite plugin
+  - [ ] webpack plugin
+  - [ ] esbuild plugin (maybe. idk)
+- [ ] website
+  - [x] [project template](https://github.com/ssleert/hywer-website)
+- [x] [bundle size test](https://github.com/ssleert/hywer-bundle-size)
+      
 
 <div align="center">
 
