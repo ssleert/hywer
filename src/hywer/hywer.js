@@ -34,7 +34,8 @@ const reactiveGC = () =>
       // if .gc() return false, value is unused
       // now we can remove it from gcValues
       gcValues[forEach](val => val.gc() || gcValues.delete(val)),
-      isGCsetTimeout = false // gc completed
+      isGCsetTimeout = false, // gc completed
+      console.log(gcValues)
     ), gcCycleInMs),
     isGCsetTimeout = true // gc queued
   )
@@ -47,146 +48,155 @@ export const effect = (fn, refs) => refs[forEach](
 )
 
 // derive new reactive value from many others
-// TODO: fix
-export const derive = (fn, refs) => refs[forEach](
-  val => val.derive(() => fn(refs))
-)
+export const derive = (fn, refs) => {
+  const reactiveValue = makeReactiveValue(fn(refs))
+
+  refs[forEach](
+    val => val[derived].set(reactiveValue,
+      () => reactiveValue.val = fn(refs)
+    )
+  )
+
+  return reactiveValue
+}
+
+const makeReactiveValue = (value) => ({
+  __ReactiveValue__: true, // magic value to identificate reactive value
+  [binds]: new Map(), // elements connected to the reactive value and their callbacks
+  [derived]: new Map(), // reactive values that derives from this
+  subs: new Set(), // functions that executes on every reactive value change
+  oldVal: value, // old value
+
+  // getter of current value
+  get val() {
+    return value
+  },
+
+  // set new value
+  set val(nextValue) {
+    // skip if new value equals current value 
+    nextValue == value ||
+      // queue new macro task to call reaction
+      setTimeout(() => (
+        // TODO: queue only react()
+        //       without new value assign
+        this.oldVal = value,
+        value = nextValue,
+        this.react()
+      ))
+  },
+
+  // set new subscriber
+  // example: a.sub = (val) => console.log(val)
+  set sub(fn) {
+    this.subs.add(fn)
+  },
+
+  // derive new reactive value from current value
+  derive(fn) {
+    // make new reactive value from fn() result
+    let derivedValue = makeReactiveValue(fn(value, this.oldVal))
+
+    // set new reactive value as derived from current value
+    this[derived].set(
+      derivedValue,
+      (val, oldVal) => derivedValue.val = fn(val, oldVal)
+    )
+
+    return derivedValue
+  },
+
+  // remove references to not connected to DOM Elements and reactive values
+  //
+  // --- explanation ---
+  // 
+  // example of code:
+  //   const App = () => {
+  //     const count = ref(0)
+  //     const doubleCount = count.derive(val => val * 2)
+  //   
+  //     return <>
+  //       {count} * 2 = {doubleCount}
+  //       <button onClick={() => count.val++}>+</button>
+  //       <button onClick={() => count.val--}>-</button>
+  //     </>
+  //   }
+  //
+  // 1) current references tree in example code (simplified):
+  //
+  //          count
+  //         /     \
+  //      element1  doubleCount
+  //        /        \
+  //      DOM        element2
+  //                   \
+  //                   DOM
+  //
+  // 2) references tree if doubleCount element removed from DOM:
+  //
+  //          count
+  //         /     \
+  //      element1  doubleCount
+  //        /        \
+  //      DOM        element2
+  //
+  //
+  // 3) references tree after gc:
+  //
+  //          count 
+  //          /      
+  //       element1     doubleCount
+  //         /           
+  //       DOM           element2
+  //                 
+  //  
+  //  now js runtime gc can safely remove doubleCount and element2
+  //  because they no longer have references to themselves
+  gc() {
+    // alias for minification
+    let _binds = this[binds]
+    let _derived = this[derived]
+
+    // remove all not not connected to DOM Elements
+    _binds = mapFilter(_binds, ([bind, _]) => bind.isConnected)
+
+    // call gc() for all derived
+    _derived = mapFilter(_derived, ([derive, _]) => derive.gc())
+
+    // if one of the maps is not empty, we return true
+    return _derived.size + _binds.size != 0
+  },
+
+  // remove old bind to element
+  // and make bind to new element
+  rebind(oldElement, element, fn) {
+    this[binds].delete(oldElement)
+    this[binds].set(element, fn)
+    reactiveGC()
+  },
+
+  // bind to Element
+  [bind](element, fn) {
+    this[binds].set(element, fn)
+    // queue gc
+    reactiveGC()
+  },
+
+  // call all subscribers, binded to elements functions and derived functions
+  react() {
+    let _this = this // alias
+
+    let exec = fn => fn(value, _this.oldVal)
+
+    _this.subs[forEach](fn => exec(fn))
+    _this[derived][forEach](fn => exec(fn))
+    _this[binds][forEach](fn => exec(fn))
+  },
+})
 
 // create new reactive value
 export const ref = value => {
-  const reactive = {
-    __ReactiveValue__: true, // magic value to identificate reactive value
-    [binds]: new Map(), // elements connected to the reactive value and their callbacks
-    [derived]: new Map(), // reactive values that derives from this
-    subs: new Set(), // functions that executes on every reactive value change
-    oldVal: value, // old value
-
-    // getter of current value
-    get val() {
-      return value
-    },
-
-    // set new value
-    set val(nextValue) {
-      // skip if new value equals current value 
-      nextValue == value ||
-        // queue new macro task to call reaction
-        setTimeout(() => (
-          // TODO: queue only react()
-          //       without new value assign
-          this.oldVal = value,
-          value = nextValue,
-          this.react()
-        ))
-    },
-
-    // set new subscriber
-    // example: a.sub = (val) => console.log(val)
-    set sub(fn) {
-      this.subs.add(fn)
-    },
-
-    // derive new reactive value from current value
-    derive(fn) {
-      // make new reactive value from fn() result
-      let derivedValue = ref(fn(value, this.oldVal))
-
-      // set new reactive value as derived from current value
-      this[derived].set(
-        derivedValue,
-        (val, oldVal) => derivedValue.val = fn(val, oldVal)
-      )
-
-      return derivedValue
-    },
-
-    // remove references to not connected to DOM Elements and reactive values
-    //
-    // --- explanation ---
-    // 
-    // example of code:
-    //   const App = () => {
-    //     const count = ref(0)
-    //     const doubleCount = count.derive(val => val * 2)
-    //   
-    //     return <>
-    //       {count} * 2 = {doubleCount}
-    //       <button onClick={() => count.val++}>+</button>
-    //       <button onClick={() => count.val--}>-</button>
-    //     </>
-    //   }
-    //
-    // 1) current references tree in example code (simplified):
-    //
-    //          count
-    //         /     \
-    //      element1  doubleCount
-    //        /        \
-    //      DOM        element2
-    //                   \
-    //                   DOM
-    //
-    // 2) references tree if doubleCount element removed from DOM:
-    //
-    //          count
-    //         /     \
-    //      element1  doubleCount
-    //        /        \
-    //      DOM        element2
-    //
-    //
-    // 3) references tree after gc:
-    //
-    //          count 
-    //          /      
-    //       element1     doubleCount
-    //         /           
-    //       DOM           element2
-    //                 
-    //  
-    //  now js runtime gc can safely remove doubleCount and element2
-    //  because they no longer have references to themselves
-    gc() {
-      // alias for minification
-      let _binds = this[binds]
-      let _derived = this[derived]
-
-      // remove all not not connected to DOM Elements
-      _binds = mapFilter(_binds, ([bind, _]) => bind.isConnected)
-
-      // call gc() for all derived
-      _derived = mapFilter(_derived, ([derive, _]) => derive.gc())
-
-      // if one of the maps is not empty, we return true
-      return _derived.size + _binds.size != 0
-    },
-
-    // remove old bind to element
-    // and make bind to new element
-    rebind(oldElement, element, fn) {
-      this[binds].delete(oldElement)
-      this[binds].set(element, fn)
-      reactiveGC()
-    },
-
-    // bind to Element
-    [bind](element, fn) {
-      this[binds].set(element, fn)
-      // add current value to gc
-      gcValues.add(this)
-      // queue gc
-      reactiveGC()
-    },
-
-    // call all subscribers, binded to elements functions and derived functions
-    react() {
-      let _this = this // alias
-
-      _this.subs[forEach](sub => sub(value, _this.oldVal))
-      _this[derived][forEach](derive => derive(value, _this.oldVal))
-      _this[binds][forEach](bind => bind(value, _this.oldVal))
-    },
-  }
+  const reactive = makeReactiveValue(value)
 
   // add reactive value to garbage collected values
   gcValues.add(reactive)
