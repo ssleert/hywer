@@ -17,7 +17,7 @@ let bind = "bind"
 // super simple utility functions
 const instanceOf = (obj, type) => obj instanceof type
 const isObjectReactiveValue = (obj) => obj?.__ReactiveValue__
-const isObjectHTMLElement = (obj) => instanceOf(obj, HTMLElement) || instanceOf(obj, Text)
+const isObjectElement = (obj) => instanceOf(obj, Element) || instanceOf(obj, Text)
 const mapFilter = (map, mapper) => new Map([...map].filter(mapper)) // filter map by predicate
 const isUndefOrNull = (val) => val === _undefined || val === null
 
@@ -42,13 +42,14 @@ const reactiveGC = () =>
 // ====== reactive values contructing ======
 
 // add function to subs of many reactive values
-export const effect = (fn, values) => values[forEach](
-  val => val.sub = () => fn(values)
+export const effect = (fn, refs) => refs[forEach](
+  val => val.sub = () => fn(refs)
 )
 
 // derive new reactive value from many others
-export const derive = (fn, values) => values[forEach](
-  val => val.derive(() => fn(values))
+// TODO: fix
+export const derive = (fn, refs) => refs[forEach](
+  val => val.derive(() => fn(refs))
 )
 
 // create new reactive value
@@ -99,7 +100,7 @@ export const ref = value => {
       return derivedValue
     },
 
-    // remove references to not connected to DOM HTMLElements and reactive values
+    // remove references to not connected to DOM Elements and reactive values
     //
     // --- explanation ---
     // 
@@ -150,7 +151,7 @@ export const ref = value => {
       let _binds = this[binds]
       let _derived = this[derived]
 
-      // remove all not not connected to DOM HTMLElements
+      // remove all not not connected to DOM Elements
       _binds = mapFilter(_binds, ([bind, _]) => bind.isConnected)
 
       // call gc() for all derived
@@ -168,7 +169,7 @@ export const ref = value => {
       reactiveGC()
     },
 
-    // bind to HTMLElement
+    // bind to Element
     [bind](element, fn) {
       this[binds].set(element, fn)
       // add current value to gc
@@ -233,7 +234,7 @@ const addAttributes = (element, attributes) =>
         ? makeEventListener(element, key.slice(2), val)
         : makeAttribute(element, key, val))) // process as attribute
 
-// make new self-updating HTMLElement or Text node from reactive value
+// make new self-updating Element or Text node from reactive value
 const makeReactiveElementFromReactiveObject = (obj) => {
   // created element var
   // returned at the end
@@ -242,16 +243,16 @@ const makeReactiveElementFromReactiveObject = (obj) => {
   // alias
   let value = obj.val
 
-  // check is object HTMLElement or Text node
-  if (isObjectHTMLElement(value)) {
-    // if object already an HTMLElement or Text node
+  // check is object Element or Text node
+  if (isObjectElement(value)) {
+    // if object already an Element or Text node
     // we assign it value to element
     element = value
 
     // make new lambda that replaces value of element
     // with new value of reactive value
     let replaceElement = (val, oldVal) => {
-      element.replaceWith(val) // replace element with new HTMLElement
+      element.replaceWith(val) // replace element with new Element
       element = val // coz .replaceWith() invalidates old reference to element
       // we should assign new reference to it
 
@@ -298,17 +299,17 @@ const makeReactiveElementFromReactiveObject = (obj) => {
   return element
 }
 
-// Make new HTMLElement or Text node
+// Make new Element or Text node
 // from Object value
 const makeElementFromObject = obj =>
   // check is object reactive element
   isObjectReactiveValue(obj)
     ? makeReactiveElementFromReactiveObject(obj) // make new element from reactive value
-    : isObjectHTMLElement(obj) // if object already an HTMLElement or Text node
+    : isObjectElement(obj) // if object already an Element or Text node
       ? obj // return it
       : doc[createTextNode](obj) // make new Text node from object
 
-// Convert every child of children to HTMLElement or Text node
+// Convert every child of children to Element or Text node
 // and pass it to callback
 const appendChildren = (append, children) =>
   // collapse all sub arrays to single array
@@ -322,22 +323,22 @@ const appendChildren = (append, children) =>
 // Fragment UNIQUE object
 export const Fragment = {}
 
-// create new HTMLElement with children
+// create new Element with children
 // react createElement compatible function
 //
 // params:
 //   tag - string/Fragment/function
-//         if string create HTMLElement with this tag
-//         if Fragment simply doesnt create any HTMLElement
+//         if string create Element with this tag
+//         if Fragment simply doesnt create any Element
 //         if function we can treat it as 'Functional Component'
-//   attributes - struct with HTMLElement attributes
-//   children - array of child HTMLElements or reactive values
+//   attributes - struct with Element attributes
+//   children - array of child Elements or reactive values
 export const makeElement = (tag, attributes, ...children) => {
   // if element is null/undefined assign empty array to it
   children ??= []
   // if array is empty .forEach() and .map() goes to no op
 
-  // if tag == Fragment we shouldnt create any HTMLElement
+  // if tag == Fragment we shouldnt create any Element
   // and simply return processed children
   if (tag == Fragment) {
     let processedChildren = []
@@ -349,7 +350,7 @@ export const makeElement = (tag, attributes, ...children) => {
   // if tag is a Function we can treat it as 'Functional Component'
   if (instanceOf(tag, Function)) {
     // pack new struct with children and attributes
-    return tag({ children, ...attributes })
+    return tag({ children: [children].flat(Infinity), ...attributes })
   }
 
   // create new element with tag string
