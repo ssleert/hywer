@@ -17,7 +17,7 @@ let bind = "bind"
 // super simple utility functions
 const instanceOf = (obj, type) => obj instanceof type
 const isObjectReactiveValue = (obj) => obj?.__ReactiveValue__
-const isObjectElement = (obj) => instanceOf(obj, Element) || instanceOf(obj, Text)
+const isObjectElement = (obj) => instanceOf(obj, HTMLElement) || instanceOf(obj, Text)
 const mapFilter = (map, mapper) => new Map([...map].filter(mapper)) // filter map by predicate
 const isUndefOrNull = (val) => val === _undefined || val === null
 
@@ -75,15 +75,16 @@ const makeReactiveValue = (value) => ({
   // set new value
   set val(nextValue) {
     // skip if new value equals current value 
-    nextValue == value ||
+    nextValue == value || (
       // queue new macro task to call reaction
-      setTimeout(() => (
-        // TODO: queue only react()
-        //       without new value assign
-        this.oldVal = value,
-        value = nextValue,
+      this.oldVal = value,
+      value = nextValue,
+      queueMicrotask(() => (
+        // TODO: add check if captured value is same as current value
+        //       return without callback execution
         this.react()
       ))
+    )
   },
 
   // set new subscriber

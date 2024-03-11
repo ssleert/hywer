@@ -29,7 +29,7 @@ export type FragmentType = {
 }
 export declare const Fragment: FragmentType;
 
-export type HywerElement = Element | Text;
+export type HywerElement = HTMLElement | Text;
 export type HywerElements<T> = T extends FragmentType
   ? HywerElement[]
   : HywerElement
