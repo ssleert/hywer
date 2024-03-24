@@ -40,7 +40,7 @@ export type HywerTag = string | FragmentType;
 export declare const makeElement: <T extends HywerTag | HywerComponent>(
   tag: T,
   attributes: Record<string, unknown> | null,
-  ...children?: any[]
+  ...children: any[]
 ) => HywerElements<T>;
 
 // i dont really understand how JSX typing works in typescript
@@ -48,14 +48,14 @@ export declare const makeElement: <T extends HywerTag | HywerComponent>(
 export declare namespace JSX {
   interface IntrinsicElements {
     [element: string]: unknown
-  };
+  }
   interface IntrinsicAttributes {
     key?: string | number | symbol;
-  };
-  interface Element extends HywerElement {
+  }
+  interface Element {
     // stupid fix coz typescript treat jsx Fragments as JSX.Element
     // TODO: find way to do this better
-    [Symbol.iterator](): Iterator
+    [Symbol.iterator](): Iterator<any, any, any>
   }
 
   interface ElementAttributesProperty {
