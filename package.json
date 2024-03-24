@@ -7,6 +7,9 @@
   "exports": {
     ".": "./src/hywer/hywer.js",
     "./jsx-runtime": "./src/hywer/hywer.js",
-    "./jsx-dev-runtime": "./src/hywer/hywer.js"
+    "./jsx-dev-runtime": "./src/hywer/hywer.js",
+    "./x/future": "./src/x/future/future.js",
+    "./x/router": "./src/x/router/router.js",
+    "./x/html": "./src/x/html/html.js"
   }
 }
