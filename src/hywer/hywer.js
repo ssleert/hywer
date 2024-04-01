@@ -12,8 +12,6 @@ import {
   isObjectElement,
   isObjectReactiveValue,
   isUndefOrNull,
-  mapFilter,
-  replaceChildren,
   setAttribute,
 } from "./alias.js";
 
@@ -30,7 +28,8 @@ const reactiveGC = () =>
       // if .gc() return false, value is unused
       // now we can remove it from gcValues
       gcValues[forEach]((val) => val.gc() || gcValues.delete(val)),
-      isGCsetTimeout = false // gc completed
+      isGCsetTimeout = false, // gc completed
+      console.log(gcValues)
     ), gcCycleInMs), isGCsetTimeout = true // gc queued
   );
 
@@ -153,11 +152,17 @@ const makeReactiveValue = (value) => ({
   //  now js runtime gc can safely remove doubleCount and element2
   //  because they no longer have references to themselves
   gc() {
-    // call gc() for all derived
-    this[derived] = mapFilter(this[derived], ([derive, _]) => derive.gc());
+    //// call gc() for all derived
+    //this[derived] = mapFilter(this[derived], ([derive, _]) => derive.gc());
 
-    // remove all not not connected to DOM Elements
-    this[binds] = mapFilter(this[binds], ([bind, _]) => bind.isConnected == true);
+    //// remove all not not connected to DOM Elements
+    //this[binds] = mapFilter(this[binds], ([bind, _]) => bind.isConnected == true);
+    
+    let processMap = (map, predicate) => 
+      map[forEach]((_, key) => predicate(key) || map.delete(key))
+
+    processMap(this[derived], (derive) => derive.gc())
+    processMap(this[binds], (bind) => bind.isConnected == true)
 
     // if one of the maps is not empty, we return true
     return this[derived].size + this[binds].size != 0;
@@ -233,18 +238,18 @@ const makeAttribute = (element, key, val) =>
 
 // iterate over all attributes and assign
 // attribute or event listener to element
-const addAttributes = (element, attributes) =>
-  // destruct object to array of [key, val] tuples
-  // and iterate over it
-  Object.entries(attributes)[forEach](
-    ([key, val]) => (key = key.toLowerCase(), // convert every key to lower case
-      key.substring(0, 2) == "on" // if starts with on process it as event listener
-        ? makeEventListener(element, key.slice(2), val)
-        : makeAttribute(element, key, val)),
-  ); // process as attribute
+const addAttributes = (element, attributes) => {
+  // iterate over attributes keys
+  for (let key in attributes) {
+    let val = attributes[key]
 
-const makeNewHiddenDivElement = () => {
-  return element
+    // if key is react-like className convert to normal class or lower case
+    key = (key == "classname") ? "class" : key.toLowerCase()
+
+    key.substring(0, 2) == "on" // if starts with on process it as event listener
+      ? makeEventListener(element, key.slice(2), val)
+      : makeAttribute(element, key, val)
+  }
 }
 
 // make new self-updating Element or Text node from reactive value
@@ -371,10 +376,6 @@ export const Fragment = {};
 //   attributes - struct with Element attributes
 //   children - array of child Elements or reactive values
 export const makeElement = (tag, attributes, ...children) => {
-  // if element is null/undefined assign empty array to it
-  children ??= [];
-  // if array is empty .forEach() and .map() goes to no op
-
   // if tag == Fragment we shouldnt create any Element
   // and simply return processed children
   if (tag == Fragment) {
@@ -387,12 +388,12 @@ export const makeElement = (tag, attributes, ...children) => {
   // if tag is a Function we can treat it as 'Functional Component'
   if (instanceOf(tag, Function)) {
     // pack new struct with children and attributes
-    return tag({ children: [children].flat(Infinity), ...attributes });
+    return tag({ children, ...attributes });
   }
 
   // create new element with tag string
   let element = doc[createElement](tag);
-  addAttributes(element, attributes ?? 0); // and add attributes to it
+  addAttributes(element, attributes); // and add attributes to it
 
   // append children through callback
   appendChildren((e) => element.append(e), children);
@@ -402,4 +403,5 @@ export const makeElement = (tag, attributes, ...children) => {
 // react 17+ jsx-runtime compatibility
 export const jsx = (tag, { children, ...attributes }) =>
   makeElement(tag, attributes, children ?? []);
+
 export { jsx as jsxDEV, jsx as jsxs }; // jsxDEV and jsxs aliases
