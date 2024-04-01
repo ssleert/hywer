@@ -30,7 +30,7 @@ const reactiveGC = () =>
       // if .gc() return false, value is unused
       // now we can remove it from gcValues
       gcValues[forEach]((val) => val.gc() || gcValues.delete(val)),
-        isGCsetTimeout = false // gc completed
+      isGCsetTimeout = false // gc completed
     ), gcCycleInMs), isGCsetTimeout = true // gc queued
   );
 
@@ -72,12 +72,17 @@ const makeReactiveValue = (value) => ({
     nextValue == value || (
       // queue new macro task to call reaction
       this.oldVal = value,
-        value = nextValue,
-        queueMicrotask(() => (
-          // TODO: add check if captured value is same as current value
-          //       return without callback execution
-          this.react()
-        ))
+      value = nextValue,
+      //queueMicrotask(() => (
+      //  // TODO: add check if captured value is same as current value
+      //  //       return without callback execution
+      //  this.react()
+      //))
+
+      // INFO: queueMicrotask remove temporary
+      //       coz i think it have negative impact
+      //       to ui update speed
+      this.react()
     );
   },
 
@@ -179,9 +184,9 @@ const makeReactiveValue = (value) => ({
 
     let exec = (fn) => fn(value, _this.oldVal);
 
-    _this.subs[forEach]((fn) => exec(fn));
-    _this[derived][forEach]((fn) => exec(fn));
     _this[binds][forEach]((fn) => exec(fn));
+    _this[derived][forEach]((fn) => exec(fn));
+    _this.subs[forEach]((fn) => exec(fn));
   },
 });
 
@@ -213,8 +218,8 @@ const setAttributes = (element, key, val) =>
   val === true
     ? element[setAttribute](key, "") // set to empty attribute, usefull for <button disabled>
     : val === false || isUndefOrNull(val) // if strictly false or null/undefined
-    ? element.removeAttribute(key) // remove attribute
-    : element[setAttribute](key, val); // in other ways set to val string
+      ? element.removeAttribute(key) // remove attribute
+      : element[setAttribute](key, val); // in other ways set to val string
 
 // append new attribute to element by key with val
 const makeAttribute = (element, key, val) =>
@@ -222,7 +227,7 @@ const makeAttribute = (element, key, val) =>
   isObjectReactiveValue(val)
     ? ( // bind attribute updater to element
       val[bind](element, (val) => setAttributes(element, key, val)),
-        setAttributes(element, key, val.val)
+      setAttributes(element, key, val.val)
     )
     : setAttributes(element, key, val); // simply set attribute to element
 
@@ -237,6 +242,10 @@ const addAttributes = (element, attributes) =>
         ? makeEventListener(element, key.slice(2), val)
         : makeAttribute(element, key, val)),
   ); // process as attribute
+
+const makeNewHiddenDivElement = () => {
+  return element
+}
 
 // make new self-updating Element or Text node from reactive value
 const makeReactiveElementFromReactiveObject = (obj) => {
@@ -268,31 +277,54 @@ const makeReactiveElementFromReactiveObject = (obj) => {
     // bind replaceElement to reactive value
     obj[bind](element, replaceElement);
   } else if (instanceOf(value, Array)) { // check is object an Array
-    // TODO: reimplement without phantom div
+    // TODO: incremental array update in dom. maybe it 
+    //       should implemented in extensions like "hywer/x/list"
+    //       or something like that
 
-    // create new div
-    element = doc[createElement]("div");
+    // create phantom div for array identification in dom
+    // and parent element get through lastElement.parentElement
+    let lastElement = doc[createElement]("div");
+    lastElement.style.display = "none"
 
-    let processedChildren = [];
-    let processChildren = (val) =>
-      appendChildren(
-        (e) => processedChildren.push(e),
-        val,
-      ); // process all array values with appendChildren()
+    // array of element that should be connected to dom
+    let processedElements = []
 
-    // bind object to element
-    obj[bind](element, (val) => {
+    // push processed elements from array to processedElements
+    let appendToProcessedElements = (children) => appendChildren(
+      (e) => processedElements.push(e),
+      children
+    )
+
+    // process reactive elements on every reactive array change
+    let processElements = (val) => {
+      // get parent element of array
+      // to insert new element in needed position in dom
+      let parentElement = lastElement.parentElement
+
+      // remove all old elements
+      processedElements[forEach](e => e.remove())
+
       // clear array
-      processedChildren.length = 0;
-      processChildren(val);
+      processedElements.length = 0
 
-      // TODO: reimplement without array unpack.
-      //       in some cases it can throw error
-      //       with something like 'stack size exceeded'
-      element[replaceChildren](...processedChildren);
-    });
-    processChildren(value);
-    element[replaceChildren](...processedChildren);
+      // process new array values
+      appendToProcessedElements(val)
+
+      // insert new values in dom
+      processedElements[forEach](e => parentElement.insertBefore(e, lastElement))
+    }
+
+    // bind to phantom div that should be connected to dom
+    // coz its added constantly for all array render
+    // we shoudnt rebind it on every array change
+    obj[bind](lastElement, processElements)
+
+    // process current array
+    appendToProcessedElements(value)
+
+    let returnedElements = processedElements.slice()
+    returnedElements.push(lastElement)
+    return returnedElements
   } else {
     // in other cases we simply created new Text node
     // and reassign .nodeValue to new val
@@ -311,8 +343,8 @@ const makeElementFromObject = (obj) =>
   isObjectReactiveValue(obj)
     ? makeReactiveElementFromReactiveObject(obj) // make new element from reactive value
     : isObjectElement(obj) // if object already an Element or Text node
-    ? obj // return it
-    : doc[createTextNode](obj); // make new Text node from object
+      ? obj // return it
+      : doc[createTextNode](obj); // make new Text node from object
 
 // Convert every child of children to Element or Text node
 // and pass it to callback
