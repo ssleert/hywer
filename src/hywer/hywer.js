@@ -28,8 +28,7 @@ const reactiveGC = () =>
       // if .gc() return false, value is unused
       // now we can remove it from gcValues
       gcValues[forEach]((val) => val.gc() || gcValues.delete(val)),
-      isGCsetTimeout = false, // gc completed
-      console.log(gcValues)
+      isGCsetTimeout = false // gc completed
     ), gcCycleInMs), isGCsetTimeout = true // gc queued
   );
 
