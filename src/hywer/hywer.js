@@ -20,7 +20,7 @@ const gcValues = new Set(); // set of tracked reactive values
 let isGCsetTimeout; // is garbage collector already queued
 
 // garbage collect unused reactive references
-const reactiveGC = () =>
+export const reactiveGC = () =>
   // return if gc already queued
   isGCsetTimeout || (
     setTimeout(() => (
@@ -101,6 +101,7 @@ const makeReactiveValue = (value) => ({
       (val, oldVal) => derivedValue.val = fn(val, oldVal),
     );
 
+    gcValues.add(this)
     return derivedValue;
   },
 
@@ -178,7 +179,9 @@ const makeReactiveValue = (value) => ({
   // bind to Element
   [bind](element, fn) {
     this[binds].set(element, fn);
+
     // queue gc
+    gcValues.add(this)
     reactiveGC();
   },
 
@@ -196,11 +199,7 @@ const makeReactiveValue = (value) => ({
 
 // create new reactive value
 export const ref = (value) => {
-  const reactive = makeReactiveValue(value);
-
-  // add reactive value to garbage collected values
-  gcValues.add(reactive);
-  return reactive;
+  return makeReactiveValue(value);
 };
 
 // ====== element processing =======
