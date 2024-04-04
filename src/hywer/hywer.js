@@ -349,16 +349,22 @@ const makeElementFromObject = (obj) =>
       ? obj // return it
       : doc[createTextNode](obj); // make new Text node from object
 
+const processChild = (fn) => (child) =>
+  instanceOf(child, Array)
+    ? child[forEach](e => fn(e))
+    : fn(child)
+
 // Convert every child of children to Element or Text node
 // and pass it to callback
 const appendChildren = (append, children) =>
   // collapse all sub arrays to single array
   // we dont know how many nested arrays we have here
   // so we should use Infinity
+  (append = processChild(append),
   [children].flat(Infinity)[forEach](
     // skip append if object null/undefined
     (child) => isUndefOrNull(child) || append(makeElementFromObject(child)),
-  );
+  ));
 
 // Fragment UNIQUE object
 export const Fragment = {};
