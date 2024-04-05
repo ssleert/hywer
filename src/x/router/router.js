@@ -28,7 +28,7 @@ const moreThenFirst = (_, i) => i >= 1;
 const setCurrentRoute = () => {
   let path = location.pathname;
   let matches = routes.filter((route) => path.match(route.path));
-  let match = matches.length ? matches[0] : routes[0];
+  let match = matches[length] ? matches[0] : routes[0];
   currentRoute = {
     ...match,
     processedParams: Object.fromEntries(
