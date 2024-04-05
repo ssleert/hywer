@@ -20,5 +20,5 @@ export let bind = "bind"
 // super simple utility functions
 export const instanceOf = (obj, type) => obj instanceof type;
 export const isObjectReactiveValue = (obj) => obj?.__ReactiveValue__;
-export const isObjectElement = (obj) => instanceOf(obj, HTMLElement) || instanceOf(obj, Text);
+export const isObjectElement = (obj) => instanceOf(obj, HTMLElement) || instanceOf(obj, Text) || instanceOf(obj, SVGElement);
 export const isUndefOrNull = (val) => val === _undefined || val === null;
