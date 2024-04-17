@@ -242,7 +242,7 @@ const addAttributes = (element, attributes) => {
     let val = attributes[key]
 
     // if key is react-like className convert to normal class or lower case
-    key = (key == "classname") ? "class" : key.toLowerCase()
+    key = (key == "className") ? "class" : key.toLowerCase()
 
     key.substring(0, 2) == "on" // if starts with on process it as event listener
       ? makeEventListener(element, key.slice(2), val)
