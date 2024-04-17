@@ -61,8 +61,8 @@ const navigate = async () => {
   callbackAfterRoute && await callbackAfterRoute();
 };
 
-export const navigateTo = async (url, state) => {
-  history.pushState(state, "", url);
+export const navigateTo = async (path, state) => {
+  history.pushState(state, "", path);
   await navigate();
 };
 
@@ -104,7 +104,7 @@ export const Link = ({ [_children]: children, path, state, ...attributes }) =>
     ...attributes,
   }, children);
 
-export const NavLink = ({ [_children]: children, path, "activeClass": activeClass, state, ...attributes }) => {
+export const NavLink = ({ [_children]: children, path, activeClass, state, ...attributes }) => {
   const link = makeElement("a", {
     onClick: onClickLinkHandler(path, state),
     href: path,

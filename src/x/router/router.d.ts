@@ -1,0 +1,58 @@
+ // createRouterContext({
+ //   "/": () => <Redirect path="/first" />,
+ //   "/first": () => <Post1 />,
+ //   "/second": () => <Post2 />,
+ // })
+
+export interface RouteParams {
+  [key: string]: string
+};
+
+export declare const getParams: () => RouteParams;
+
+export declare const navigateTo: (
+  path: string, 
+  state: any,
+) => Promise<void>;
+
+export interface Routes {
+  [path: string]: Function | any;
+};
+
+export declare const createRouterContext: (
+  userRoutes: Routes,
+  beforeRoute: () => void,
+  afterRoute: () => void,
+) => void;
+
+
+export interface RouterProps {
+  [key: string]: any
+};
+export declare const Router: (
+  props: RouterProps,
+) => any;
+
+export interface LinkProps {
+  children?: any | any[],
+  path: string,
+  state?: any,
+  [key: string]: string
+};
+
+export declare const Link: (
+  props: LinkProps,  
+) => any;
+
+export interface NavLinkProps {
+  children?: any | any[],
+  path: string,
+  activeClass?: string,
+  state?: any,
+  
+  [key: string]: string
+};
+
+export declare const NavLink: (
+  props: NavLinkProps,
+) => any;
