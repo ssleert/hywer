@@ -5,7 +5,7 @@
  // })
 
 export interface RouteParams {
-  [key: string]: string
+  [key: string]: any
 };
 
 export declare const getParams: () => RouteParams;
@@ -21,8 +21,8 @@ export interface Routes {
 
 export declare const createRouterContext: (
   userRoutes: Routes,
-  beforeRoute: () => void,
-  afterRoute: () => void,
+  beforeRoute?: () => void,
+  afterRoute?: () => void,
 ) => void;
 
 
@@ -37,7 +37,7 @@ export interface LinkProps {
   children?: any | any[],
   path: string,
   state?: any,
-  [key: string]: string
+  [key: string]: any
 };
 
 export declare const Link: (
@@ -50,9 +50,13 @@ export interface NavLinkProps {
   activeClass?: string,
   state?: any,
   
-  [key: string]: string
+  [key: string]: any
 };
 
 export declare const NavLink: (
   props: NavLinkProps,
+) => any;
+
+export declare const Redirect: (
+  path: string
 ) => any;
