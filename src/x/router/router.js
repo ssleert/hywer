@@ -62,6 +62,9 @@ const navigate = async () => {
 };
 
 export const navigateTo = async (path, state) => {
+  if (path == location.pathname) {
+    return;
+  }
   history.pushState(state, "", path);
   await navigate();
 };
