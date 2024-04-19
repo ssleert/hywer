@@ -101,7 +101,7 @@ const onClickLinkHandler = (path, state) => async (e) => (e.preventDefault(), aw
 export const Link = ({ [_children]: children, path, state, onClick, ...attributes }) => {
   let onClickHandler = onClickLinkHandler(path, state)
   return makeElement("a", {
-    onClick: onClick ? () => (onClick(), onClickHandler()) : onClickHandler,
+    onClick: onClick ? async (e) => (await onClick(e), await onClickHandler(e)) : onClickHandler,
     href: path,
     ...attributes,
   }, children);
@@ -110,7 +110,7 @@ export const Link = ({ [_children]: children, path, state, onClick, ...attribute
 export const NavLink = ({ [_children]: children, path, activeClass, state, onClick, ...attributes }) => {
   let onClickHandler = onClickLinkHandler(path, state)
   let link = makeElement("a", {
-    onClick: onClick ? () => (onClick(), onClickHandler()) : onClickHandler,
+    onClick: onClick ? async (e) => (await onClick(e), await onClickHandler(e)) : onClickHandler,
     href: path,
     ...attributes,
   }, children);
