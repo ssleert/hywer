@@ -36,6 +36,7 @@ export interface LinkProps {
   children?: any | any[],
   path: string,
   state?: any,
+  onClick?: (e: Event) => void,
   [key: string]: any
 };
 
@@ -48,6 +49,7 @@ export interface NavLinkProps {
   path: string,
   activeClass?: string,
   state?: any,
+  onClick?: (e: Event) => void,
   
   [key: string]: any
 };

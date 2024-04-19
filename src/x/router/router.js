@@ -97,16 +97,20 @@ export const Router = ({ [_children]: _, ...attributes }) =>
   }, execView(currentRoute));
 
 const onClickLinkHandler = (path, state) => async (e) => (e.preventDefault(), await navigateTo(path, state))
-export const Link = ({ [_children]: children, path, state, ...attributes }) =>
-  makeElement("a", {
-    onClick: onClickLinkHandler(path, state),
+
+export const Link = ({ [_children]: children, path, state, onClick, ...attributes }) => {
+  let onClickHandler = onClickLinkHandler(path, state)
+  return makeElement("a", {
+    onClick: onClick ? () => (onClick(), onClickHandler()) : onClickHandler,
     href: path,
     ...attributes,
   }, children);
+}
 
-export const NavLink = ({ [_children]: children, path, activeClass, state, ...attributes }) => {
-  const link = makeElement("a", {
-    onClick: onClickLinkHandler(path, state),
+export const NavLink = ({ [_children]: children, path, activeClass, state, onClick, ...attributes }) => {
+  let onClickHandler = onClickLinkHandler(path, state)
+  let link = makeElement("a", {
+    onClick: onClick ? () => (onClick(), onClickHandler()) : onClickHandler,
     href: path,
     ...attributes,
   }, children);
