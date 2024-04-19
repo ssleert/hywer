@@ -56,6 +56,11 @@ export declare const NavLink: (
   props: NavLinkProps,
 ) => any;
 
-export declare const Redirect: (
+
+export interface RedirectProps {
   path: string
+};
+
+export declare const Redirect: (
+  props: RedirectProps,
 ) => any;
