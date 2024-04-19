@@ -25,7 +25,6 @@ export declare const createRouterContext: (
   afterRoute?: () => void,
 ) => void;
 
-
 export interface RouterProps {
   [key: string]: any
 };

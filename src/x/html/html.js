@@ -3,7 +3,6 @@ import {
   createElement,
 } from "../../hywer/alias.js"
 
-
 // convert array to html class
 export const toClass = (arr) => arr.join(" ")
 

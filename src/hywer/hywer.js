@@ -13,6 +13,7 @@ import {
   isObjectReactiveValue,
   isUndefOrNull,
   setAttribute,
+  insertBefore,
 } from "./alias.js";
 
 export let gcCycleInMs = 5000; // time minimum time betwen gc executions
@@ -314,7 +315,7 @@ const makeReactiveElementFromReactiveObject = (obj) => {
       appendToProcessedElements(val)
 
       // insert new values in dom
-      processedElements[forEach](e => parentElement.insertBefore(e, lastElement))
+      processedElements[forEach](e => parentElement[insertBefore](e, lastElement))
     }
 
     // bind to phantom div that should be connected to dom

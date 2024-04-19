@@ -16,6 +16,7 @@ export let createTextNode = "createTextNode"
 export let derived = "derived"
 export let binds = "binds"
 export let bind = "bind"
+export let insertBefore = "insertBefore"
 
 // super simple utility functions
 export const instanceOf = (obj, type) => obj instanceof type;
