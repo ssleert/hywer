@@ -16,7 +16,7 @@ export const recRef = (obj) => {
       ? val
       : isObject(val)
         ? recRef(val)
-        : val
+        : ref(val)
   }
 
   return ref(refObj);
