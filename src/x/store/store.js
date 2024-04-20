@@ -4,8 +4,7 @@ import { ref } from "../../hywer/hywer.js";
 const isObject = obj => 
   typeof obj == "object" && 
   obj !== null && 
-  !instanceOf(obj, Array) &&
-  !isObjectReactiveValue(obj);
+  !instanceOf(obj, Array);
 
 export const recRef = (obj) => {
   let refObj = {}
@@ -13,11 +12,11 @@ export const recRef = (obj) => {
   for (let key in obj) {
     let val = obj[key];
 
-    refObj[key] = isObject(val)
-      ? recRef(val)
-      : isObjectReactiveValue(val) 
-        ? val
-        : ref(val);
+    refObj[key] = isObjectReactiveValue(val)
+      ? val
+      : isObject(val)
+        ? recRef(val)
+        : val
   }
 
   return ref(refObj);
@@ -48,9 +47,7 @@ export const store = (obj) => {
 
       return reactiveValue
     },
-    set() {
-      throw Error("Reactive values in the store are immutable. maybe you want to mutate the .val?")
-    },
+    set() { return; },
   }
 
   return new Proxy(refObj, proxyMethods);
