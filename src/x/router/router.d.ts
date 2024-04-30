@@ -12,7 +12,7 @@ export declare const getParams: () => RouteParams;
 
 export declare const navigateTo: (
   path: string, 
-  state: any,
+  state?: any,
 ) => Promise<void>;
 
 export interface Routes {

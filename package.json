@@ -1,6 +1,6 @@
 {
   "name": "hywer",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "🥢 World Smallest, JSX based, Fine Grained Reactive UI Library.",
   "author": "ssleert",
   "type": "module",
