@@ -52,7 +52,7 @@ export declare namespace JSX {
   interface IntrinsicAttributes {
     key?: string | number | symbol;
   }
-  interface Element {
+  interface Element extends HTMLElement {
     // stupid fix coz typescript treat jsx Fragments as JSX.Element
     // TODO: find way to do this better
     [Symbol.iterator](): Iterator<any, any, any>
