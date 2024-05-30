@@ -4,6 +4,7 @@ import {
   instanceOf,
   replaceChildren,
   isUndefOrNull,
+  isObjectReactiveValue,
 } from "../../hywer/alias.js";
 import { makeElement } from "../../hywer/hywer.js";
 
@@ -99,7 +100,8 @@ export const Router = ({ [_children]: _, ...attributes }) =>
     ...attributes,
   }, execView(currentRoute));
 
-const onClickLinkHandler = (path, state) => async (e) => (e.preventDefault(), await navigateTo(path, state))
+const onClickLinkHandler = (path, state) => 
+  async (e) => (e.preventDefault(), await navigateTo((isObjectReactiveValue(path) ? path.val : path), state))
 
 export const Link = ({ [_children]: children, path, state, onClick, ...attributes }) => {
   let onClickHandler = onClickLinkHandler(path, state)
