@@ -36,7 +36,7 @@ export declare const Router: (
 
 export interface LinkProps {
   children?: any | any[],
-  path: string,
+  path: string | Reactive<string>,
   state?: any,
   onClick?: (e: Event) => void,
   [key: string]: any
@@ -48,7 +48,7 @@ export declare const Link: (
 
 export interface NavLinkProps {
   children?: any | any[],
-  path: string | Reactive<string>,
+  path: string,
   activeClass?: string,
   state?: any,
   onClick?: (e: Event) => void,
