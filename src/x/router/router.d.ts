@@ -48,7 +48,7 @@ export declare const Link: (
 
 export interface NavLinkProps {
   children?: any | any[],
-  path: string,
+  path: string | Reactive<string>,
   activeClass?: string,
   state?: any,
   onClick?: (e: Event) => void,
