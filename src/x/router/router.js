@@ -97,7 +97,7 @@ export const createRouterContext = (userRoutes, beforeRoute, afterRoute) => {
 export const Router = ({ [_children]: _, ...attributes }) =>
   makeElement("div", {
     id: routerElementId,
-    children: execView(currentRoute)
+    children: execView(currentRoute),
     ...attributes,
   });
 
@@ -109,7 +109,7 @@ export const Link = ({ [_children]: children, path, state, onClick, ...attribute
   return makeElement("a", {
     onClick: onClick ? async (e) => (await onClick(e), await onClickHandler(e)) : onClickHandler,
     href: path,
-    children
+    children,
     ...attributes,
   });
 }
@@ -119,7 +119,7 @@ export const NavLink = ({ [_children]: children, path, activeClass, state, onCli
   let link = makeElement("a", {
     onClick: onClick ? async (e) => (await onClick(e), await onClickHandler(e)) : onClickHandler,
     href: path,
-    children
+    children,
     ...attributes,
   });
 
