@@ -72,16 +72,16 @@ const makeReactiveValue = (value) => ({
       // queue new macro task to call reaction
       this.oldVal = value,
       value = nextValue,
-      //queueMicrotask(() => (
-      //  // TODO: add check if captured value is same as current value
-      //  //       return without callback execution
-      //  this.react()
-      //))
+      queueMicrotask(() => (
+        // TODO: add check if captured value is same as current value
+        //       return without callback execution
+        this.react()
+      ))
 
       // INFO: queueMicrotask remove temporary
       //       coz i think it have negative impact
       //       to ui update speed
-      this.react()
+      //this.react()
     );
   },
 
@@ -380,7 +380,7 @@ export const Fragment = {};
 //         if function we can treat it as 'Functional Component'
 //   attributes - struct with Element attributes
 //   children - array of child Elements or reactive values
-export const makeElement = (tag, attributes, ...children) => {
+export const makeElement = (tag, { children, ...attributes }) => {
   // if tag == Fragment we shouldnt create any Element
   // and simply return processed children
   if (tag == Fragment) {
@@ -392,6 +392,7 @@ export const makeElement = (tag, attributes, ...children) => {
 
   // if tag is a Function we can treat it as 'Functional Component'
   if (instanceOf(tag, Function)) {
+    // convert array with only one element to element
     // pack new struct with children and attributes
     return tag({ children, ...attributes });
   }
@@ -406,7 +407,8 @@ export const makeElement = (tag, attributes, ...children) => {
 };
 
 // react 17+ jsx-runtime compatibility
-export const jsx = (tag, { children, ...attributes }) =>
-  makeElement(tag, attributes, children ?? []);
-
-export { jsx as jsxDEV, jsx as jsxs }; // jsxDEV and jsxs aliases
+export {
+  makeElement as jsx,
+  makeElement as jsxDEV,
+  makeElement as jsxs,
+}; // jsxDEV and jsxs aliases

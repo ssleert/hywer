@@ -97,8 +97,9 @@ export const createRouterContext = (userRoutes, beforeRoute, afterRoute) => {
 export const Router = ({ [_children]: _, ...attributes }) =>
   makeElement("div", {
     id: routerElementId,
+    children: execView(currentRoute)
     ...attributes,
-  }, execView(currentRoute));
+  });
 
 const onClickLinkHandler = (path, state) => 
   async (e) => (e.preventDefault(), await navigateTo((isObjectReactiveValue(path) ? path.val : path), state))
@@ -108,8 +109,9 @@ export const Link = ({ [_children]: children, path, state, onClick, ...attribute
   return makeElement("a", {
     onClick: onClick ? async (e) => (await onClick(e), await onClickHandler(e)) : onClickHandler,
     href: path,
+    children
     ...attributes,
-  }, children);
+  });
 }
 
 export const NavLink = ({ [_children]: children, path, activeClass, state, onClick, ...attributes }) => {
@@ -117,8 +119,9 @@ export const NavLink = ({ [_children]: children, path, activeClass, state, onCli
   let link = makeElement("a", {
     onClick: onClick ? async (e) => (await onClick(e), await onClickHandler(e)) : onClickHandler,
     href: path,
+    children
     ...attributes,
-  }, children);
+  });
 
   if (!isUndefOrNull(activeClass) && path == location.pathname) {
     link.classList.add(activeClass);
