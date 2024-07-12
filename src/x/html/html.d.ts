@@ -2,7 +2,7 @@ import type { Reactive } from "../../hywer/hywer.d.ts";
 
 export declare const toClass: (arr: (string | number)[]) => string;
 
-export declare const Svg: (props: {children: JSX.Element | HTMLElement}) => JSX.Element | HTMLElement;
+export declare const Svg: (props: {children: HTMlElement}) => any;
 
 export type MapperFunction<T> = (obj: T, i: number) => any;
 
