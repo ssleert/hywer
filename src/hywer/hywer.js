@@ -72,16 +72,16 @@ const makeReactiveValue = (value) => ({
       // queue new macro task to call reaction
       this.oldVal = value,
       value = nextValue,
-      queueMicrotask(() => (
-        // TODO: add check if captured value is same as current value
-        //       return without callback execution
-        this.react()
-      ))
+      //queueMicrotask(() => (
+      //  // TODO: add check if captured value is same as current value
+      //  //       return without callback execution
+      //  this.react()
+      //))
 
       // INFO: queueMicrotask remove temporary
       //       coz i think it have negative impact
       //       to ui update speed
-      //this.react()
+      this.react()
     );
   },
 
