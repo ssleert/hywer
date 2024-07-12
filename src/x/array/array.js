@@ -66,7 +66,7 @@ export const reactiveArrayRender = (reactiveArray, elem, mapper) => {
 //  }
 //</ArrayRender>
 export const ArrayRender = ({ children, "in": inObject, elem }) => {
-  let arrayRenderElement = reactiveArrayRender(inObject, elem, children[0]);
+  let arrayRenderElement = reactiveArrayRender(inObject, elem, children);
  
   return arrayRenderElement;
 }

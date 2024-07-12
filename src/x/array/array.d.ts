@@ -11,7 +11,7 @@ export declare const reactiveArrayRender: <T extends any>(
 export interface ArrayRenderProps<T> {
   children: MapperFunction<T>,
   "in": Reactive<T[]>,
-  elem: any,
+  elem: JSX.Element | HTMLElement,
 };
 
 export declare const ArrayRender: <T>(
